@@ -553,32 +553,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const ctrl = new AppController(light, timer, audio, mode);
 
   // Attach touch/click handler
-  // Na mobilu touchstart + click střelí dvakrát — blokujeme click pokud
-  // proběhl touchstart (příznak _touchHandled).
-  let touchHandled = false;
+  // Používáme touchend + preventDefault() aby se nevygeneroval následný click.
+  // Na desktopu (žádný touch) funguje click normálně.
 
-  function onTouchStart(e) {
+  function handleInteraction(e) {
     if (e.target.closest('#mode-toggle-container')) return;
-    touchHandled = true;
     audio.initialize();
     requestFullscreen(document.documentElement);
     ctrl.handleTouch();
   }
 
-  function onClick(e) {
+  semaphoreEl.addEventListener('touchend', (e) => {
     if (e.target.closest('#mode-toggle-container')) return;
-    if (touchHandled) {
-      // Toto click přišlo po touchstart — ignorujeme (duplikát)
-      touchHandled = false;
-      return;
-    }
-    audio.initialize();
-    requestFullscreen(document.documentElement);
-    ctrl.handleTouch();
-  }
+    e.preventDefault(); // zabrání následnému click eventu
+    handleInteraction(e);
+  });
 
-  semaphoreEl.addEventListener('touchstart', onTouchStart, { passive: true });
-  semaphoreEl.addEventListener('click', onClick);
+  semaphoreEl.addEventListener('click', handleInteraction);
 
   // Suppress context menu on long press
   semaphoreEl.addEventListener('contextmenu', (e) => e.preventDefault());
