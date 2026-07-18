@@ -1,0 +1,29 @@
+{
+  "name": "semafor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "jest --testEnvironment node"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jakubhledik/jakubhledik.github.io.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jakubhledik/jakubhledik.github.io/issues"
+  },
+  "homepage": "https://github.com/jakubhledik/jakubhledik.github.io#readme",
+  "devDependencies": {
+    "fast-check": "^4.9.0",
+    "jest": "^30.4.2"
+  }
+}

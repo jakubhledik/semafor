@@ -1,0 +1,321 @@
+/* ================================================================
+   Semafor App — style.css
+   ================================================================ */
+
+
+/* ================================================================
+   1. Reset & základní layout
+   ================================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #1a1a1a;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+
+/* ================================================================
+   2. Fullscreen klikatelná plocha — #semaphore
+   ================================================================ */
+
+#semaphore {
+  height: 100%;
+  width: 100%;
+  height: 100dvh;
+  width: 100vw;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+  cursor: pointer;
+  background-color: #1a1a1a;
+
+  /* Potlačení nativních gest */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+
+/* ================================================================
+   3. Skříňka semaforu — #traffic-light-body
+   ================================================================ */
+
+#traffic-light-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+
+  /* Velikost skříňky — reaguje na výšku obrazovky */
+  width:  clamp(100px, 28vh, 220px);
+  height: clamp(220px, 60vh, 480px);
+  padding: clamp(12px, 3vh, 28px) clamp(10px, 2.5vh, 24px);
+
+  background: linear-gradient(160deg, #2e2e2e 0%, #1a1a1a 100%);
+  border-radius: clamp(16px, 4vh, 32px);
+  border: 3px solid #111;
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* Stožár semaforu */
+#traffic-light-body::after {
+  content: '';
+  position: absolute;
+  bottom: calc(-1 * clamp(40px, 12vh, 100px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(10px, 2.5vh, 20px);
+  height: clamp(40px, 12vh, 100px);
+  background: linear-gradient(to bottom, #2e2e2e, #111);
+  border-radius: 0 0 4px 4px;
+}
+
+
+/* ================================================================
+   4. Světelné sloty — .light-slot
+   ================================================================ */
+
+.light-slot {
+  width:  clamp(70px, 19vh, 160px);
+  height: clamp(70px, 19vh, 160px);
+  border-radius: 50%;
+
+  /* Výchozí stav — zhasnuté */
+  background-color: #111;
+  box-shadow:
+    inset 0 4px 12px rgba(0,0,0,0.8),
+    0 0 0 3px #0d0d0d;
+
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+
+  /* Skleněný lesk */
+  background-image: radial-gradient(
+    circle at 35% 30%,
+    rgba(255,255,255,0.12) 0%,
+    transparent 60%
+  );
+  flex-shrink: 0;
+}
+
+/* ---- Červená svítí ---- */
+#semaphore.state-red #light-red {
+  background-color: #FF0000;
+  box-shadow:
+    inset 0 4px 12px rgba(0,0,0,0.3),
+    0 0 clamp(16px, 5vh, 40px) rgba(255, 0, 0, 0.85),
+    0 0 clamp(32px, 10vh, 80px) rgba(255, 0, 0, 0.35),
+    0 0 0 3px #0d0d0d;
+  background-image: radial-gradient(
+    circle at 35% 30%,
+    rgba(255,255,255,0.25) 0%,
+    transparent 55%
+  );
+}
+
+/* ---- Zelená svítí ---- */
+#semaphore.state-green #light-green {
+  background-color: #00CC00;
+  box-shadow:
+    inset 0 4px 12px rgba(0,0,0,0.3),
+    0 0 clamp(16px, 5vh, 40px) rgba(0, 204, 0, 0.85),
+    0 0 clamp(32px, 10vh, 80px) rgba(0, 204, 0, 0.35),
+    0 0 0 3px #0d0d0d;
+  background-image: radial-gradient(
+    circle at 35% 30%,
+    rgba(255,255,255,0.25) 0%,
+    transparent 55%
+  );
+}
+
+/* COUNTING_* stavy — červená svítí (stejné jako state-red) */
+#semaphore.state-red #light-red,
+#semaphore.state-red #light-green {
+  /* zelená zůstává zhasnutá — pravidlo výše to zajistí */
+}
+
+
+/* ================================================================
+   5. Odpočet — #countdown
+   ================================================================ */
+
+#countdown {
+  position: absolute;
+  /* Vycentrovat nad spodní světlo (zelené je dole, ale countdown je při červené = horní světlo) */
+  top: clamp(12px, 3vh, 28px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(70px, 19vh, 160px);
+  height: clamp(70px, 19vh, 160px);
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  font-size: clamp(36px, 11vh, 90px);
+  font-weight: 900;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+  pointer-events: none;
+  z-index: 10;
+}
+
+#countdown:not(:empty) {
+  display: flex;
+}
+
+
+/* ================================================================
+   6. Přepínač režimů — #mode-toggle-container
+   ================================================================ */
+
+#mode-toggle-container {
+  position: fixed;
+  bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  pointer-events: auto;
+}
+
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mode-label {
+  font-size: clamp(12px, 3.5vw, 15px);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  transition: color 0.2s;
+}
+
+/* Skryjeme nativní checkbox */
+#mode-switch {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Vlastní track */
+.mode-toggle__track {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 28px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+#mode-switch:checked ~ .mode-toggle__track {
+  background-color: rgba(100, 180, 255, 0.6);
+}
+
+.mode-toggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease;
+}
+
+#mode-switch:checked ~ .mode-toggle__track .mode-toggle__thumb {
+  transform: translateX(20px);
+}
+
+
+/* ================================================================
+   7. Landscape orientace
+   ================================================================ */
+
+@media (orientation: landscape) {
+  #traffic-light-body {
+    width:  clamp(80px, 22vh, 180px);
+    height: clamp(180px, 50vh, 380px);
+  }
+
+  .light-slot {
+    width:  clamp(55px, 15vh, 130px);
+    height: clamp(55px, 15vh, 130px);
+  }
+
+  #countdown {
+    width:  clamp(55px, 15vh, 130px);
+    height: clamp(55px, 15vh, 130px);
+    font-size: clamp(28px, 9vh, 72px);
+  }
+
+  #mode-toggle-container {
+    bottom: auto;
+    top: 50%;
+    right: max(16px, env(safe-area-inset-right, 16px));
+    left: auto;
+    transform: translateY(-50%);
+  }
+}
+
+
+/* ================================================================
+   8. Přístupnost
+   ================================================================ */
+
+#semaphore:focus-visible #traffic-light-body {
+  outline: 4px solid rgba(255,255,255,0.8);
+  outline-offset: 6px;
+  border-radius: clamp(16px, 4vh, 32px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .light-slot,
+  .mode-toggle__thumb,
+  .mode-toggle__track {
+    transition: none;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

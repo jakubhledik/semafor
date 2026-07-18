@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a1a1a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Semafor</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       Hlavní plocha semaforu
+       role="button"  — klikatelná plocha pro ovládání
+       aria-live="polite" — oznamuje změny stavu hlasovým čtečkám
+       ============================================================ -->
+  <main id="semaphore"
+        role="button"
+        aria-label="Červená. Klepněte pro spuštění odpočítávání."
+        aria-live="polite"
+        tabindex="0">
+
+    <!-- Skříňka semaforu -->
+    <div id="traffic-light-body">
+      <!-- Červené světlo (nahoře) -->
+      <div class="light-slot" id="light-red"></div>
+      <!-- Zelené světlo (dole) -->
+      <div class="light-slot" id="light-green"></div>
+      <!-- Číselný odpočet — překryv nad aktivním světlem -->
+      <div id="countdown" aria-hidden="true"></div>
+    </div>
+
+  </main>
+
+  <!-- ============================================================
+       Přepínač provozního režimu
+       Umístěn vně #semaphore, aby nezachycoval dotyky na semafor
+       ============================================================ -->
+  <div id="mode-toggle-container" aria-label="Výběr režimu">
+    <label class="mode-toggle" for="mode-switch">
+      <span class="mode-label mode-label--start">Start</span>
+      <input
+        type="checkbox"
+        id="mode-switch"
+        role="switch"
+        aria-checked="false"
+        aria-label="Přepnout na přepínací režim"
+      />
+      <span class="mode-toggle__track">
+        <span class="mode-toggle__thumb"></span>
+      </span>
+      <span class="mode-label mode-label--toggle">Přepínač</span>
+    </label>
+  </div>
+
+  <!-- ============================================================
+       ARIA live region pro explicitní oznámení změn stavu
+       hlasovým čtečkám (assertive = okamžité přerušení čtení)
+       ============================================================ -->
+  <div id="announce"
+       aria-live="assertive"
+       aria-atomic="true"
+       class="sr-only"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
