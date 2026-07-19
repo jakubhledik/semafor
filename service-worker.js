@@ -63,16 +63,33 @@ self.addEventListener('activate', (event) => {
    4. Událost fetch — cache-first strategie
    ================================================================ */
 
+// Soubory které se mění při vývoji → network-first (vždy čerstvá verze)
+const NETWORK_FIRST = ['/app.js', '/style.css'];
+
 self.addEventListener('fetch', (event) => {
-  // Zpracovat pouze GET požadavky; ostatní nechat projít
   if (event.request.method !== 'GET') return;
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request);
-    })
-  );
+  const url = new URL(event.request.url);
+  const isNetworkFirst = NETWORK_FIRST.some(p => url.pathname.endsWith(p));
+
+  if (isNetworkFirst) {
+    // Network-first: zkus síť, při selhání použij cache (offline fallback)
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          // Ulož čerstvou verzi do cache pro offline případ
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
+    );
+  } else {
+    // Cache-first: ikony, HTML, manifest — ty se nemění často
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        return cachedResponse || fetch(event.request);
+      })
+    );
+  }
 });
